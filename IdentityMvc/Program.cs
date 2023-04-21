@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using IdentityMvc.Requirements;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,9 +29,7 @@ builder.Services.AddIdentityWithExtention();
 builder.Services.Configure<SecurityStampValidatorOptions>(
     options =>
     {
-        options.ValidationInterval =
-            TimeSpan.FromMinutes(
-                30); //SecurityStamp Varsayılan olarak 30 dakikadır,daha az veya fazla olması durumu performansı etkileyecektir.
+        options.ValidationInterval = TimeSpan.FromMinutes(30); //SecurityStamp Varsayılan olarak 30 dakikadır,daha az veya fazla olması durumu performansı etkileyecektir.
         //Veritabanında tutulan securitystamp ile cookiedekini 30 dakikada bir karşılaştırır ve değişiklikleri saptar, gerekirse logout yapıp tekrar giriş yapılmasını ister.
     });
 builder.Services.ConfigureApplicationCookie(opt =>
@@ -45,12 +45,16 @@ builder.Services.ConfigureApplicationCookie(opt =>
 });
 builder.Services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory())); // ! Best practice olarak bu şekilde yaptık ayrıca herhangi bir class'ın constructor'unda IFileProvider ile istediğimiz klasöre erişebiliriz.
 builder.Services.AddScoped<IClaimsTransformation, UserClaimProvider>(); //Claim uygulaması için 
+builder.Services.AddScoped<IAuthorizationHandler,ExchangeExpireRequirementHandler>(); //Policy based için 
 builder.Services.AddAuthorization(opt =>
 {
     opt.AddPolicy("AnkaraPolicy", policy =>
     {
         policy.RequireClaim("City", "Ankara");
         //Burada birden fazla kural tanımlayabiliriz.
+    });
+    opt.AddPolicy("ExchangePolicy", policy =>{
+        policy.AddRequirements( new ExchangeExpireRequirement()); //Dynamic Policy
     });
 });
 var app = builder.Build();

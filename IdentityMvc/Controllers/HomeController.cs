@@ -4,6 +4,7 @@ using IdentityMvc.Services;
 using IdentityMvc.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace IdentityMvc.Controllers;
 
@@ -43,14 +44,29 @@ public class HomeController : Controller
             PhoneNumber = model.PhoneNumber
         }, model.Password!);
 
-        if (identityResult.Succeeded)
+        if (!identityResult.Succeeded)
         {
-            TempData["SuccessMessage"] = "Üyelik işlemi başarıyla tamamlandı.";
-            return RedirectToAction(nameof(SignUp));
+            ModelState.AddModelErrorList(identityResult.Errors.Select(x => x.Description).ToList());
+            return View();
         }
 
-        ModelState.AddModelErrorList(identityResult.Errors.Select(x => x.Description).ToList());
-        return View();
+        var exchangeExpireClaim=new Claim("ExchangeExpireData", DateTime.Now.AddDays(10).ToString()); //Burada 2. senaryo gereği kullanıcının kayıt olduğu günden itibaren 10 gün boyunca free kullanımı için claim oluşturuyoruz. 
+        
+        var user = await _userManager.FindByNameAsync(model.UserName);
+
+        var claimResult= await _userManager.AddClaimAsync(user!, exchangeExpireClaim); //user tablosunda kayıt olduğu tarihi tutmadan UserClaim tablosu üzerinden işlem yaptık.
+
+        if(!claimResult.Succeeded)
+        {
+            ModelState.AddModelErrorList(claimResult.Errors.Select(x => x.Description).ToList());
+            return View();
+        }
+
+        TempData["SuccessMessage"] = "Üyelik işlemi başarıyla tamamlandı.";
+        return RedirectToAction(nameof(SignUp));
+        
+
+      
     }
 
     public IActionResult Login()
