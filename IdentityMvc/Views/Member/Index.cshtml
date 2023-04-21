@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Kullanıcı bilgileri";
+}
+@model UserViewModel
+
+<div class="row">
+    <div class="col-md-4 offset-4">
+        <user-picture-thumbnail picture-url="@Model.PictureUrl" class="rounded" style="height: 175px;width: 200px; object-fit: cover"></user-picture-thumbnail>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h1> Kullanıcı bilgileri </h1>
+    </div>
+</div>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Kullanıcı Adı</th>
+        <th>Email</th>
+        <th>Telefon No</th>
+        <th>Şehir</th>
+        <th>Cinsiyet</th>
+               
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>@Model.UserName</td>
+        <td>@Model.Email</td>
+        <td>@Model.PhoneNumber</td>
+        <td>@Model.City</td>
+        <td>@Model.Gender</td>
+    </tr>
+    </tbody>
+</table>

@@ -1,0 +1,47 @@
+﻿@model List<AdminModel.RoleViewModel>
+@{
+    ViewBag.Title = "Roller";
+    Layout = "_Layout";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Roller</h1>
+</div>
+
+
+@if (TempData["SuccessMessage"] is not null)
+{
+    <div class="alert alert-info" role="alert"> @TempData["SuccessMessage"] </div>
+}
+
+<div class="row">
+
+    <a class="btn btn-primary col-md-4 offset-4" asp-action="RoleCreate">Rol Ekle</a>
+</div>
+<table class="table table-striped">
+    <thead>
+    <th>Id</th>
+    <th>Name</th>
+    <th></th>
+    <th></th>
+    </thead>
+
+    <tbody>
+    @foreach (var role in Model)
+    {
+        <tr>
+            <td>@role.Id</td>
+            <td>@role.Name</td>
+            <td>
+                <a asp-controller="Role" asp-action="RoleUpdate" asp-route-id="@role.Id" class="btn btn-warning" type="submit" >Rolü Güncelle</a>
+            </td>
+            <td>
+                <form asp-route-id="@role.Id" method="post" asp-action="RoleDelete">
+                    <button class="btn btn-danger" type="submit">Rolü Sil</button>
+                </form>
+            </td>
+
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,6 @@
+﻿HttpContext Controller sınıfından geliyor. HttpContext'i başka bir alanda kullanmak istersek IHttpContext
+Accessor u property olarak ekleyip constructor'da geçtikten sonra kullanabiliriz.
+Ayrıca Program.cs'de servis'e eklememiz lazım.
+	builder.Services.AddHttpContextAccessor(); 
+	Role based auth. Static, claim based auth. ise dynamic'tir.
+	Claim + Role based yetkilendirme (RoleClaim tablosu) Permisson bazlı yetkilendirme yapabilmemizi sağlayacak.

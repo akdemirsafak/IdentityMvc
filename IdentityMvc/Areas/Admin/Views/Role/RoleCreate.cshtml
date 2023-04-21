@@ -1,0 +1,33 @@
+﻿@model AdminModel.RoleCreateViewModel
+
+
+@{
+    ViewBag.Title = "Rol Oluştur";
+    Layout = "_Layout";
+}
+
+<partial name="_ValidationScriptsPartial"/>
+
+@if (TempData["SuccessMessage"] is not null)
+{
+    <div class="alert alert-info" role="alert"> @TempData["SuccessMessage"] </div>
+    <hr />
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h2 >Rol oluşturma</h2>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control">
+                <span asp-validation-for="Name" class="form-text"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Ekle</button>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index"> Rol listesine geri dön</a>
+</div>

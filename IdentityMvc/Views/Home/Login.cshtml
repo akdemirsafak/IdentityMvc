@@ -1,0 +1,49 @@
+﻿@model LoginViewModel
+
+@{
+    ViewBag.Title = "Giriş Yap";
+    Layout = "_Layout";
+}
+
+<partial name="_ValidationScriptsPartial"/>
+
+@if (TempData["SuccessMessage"] is not null)
+{
+    <div class="alert alert-info" role="alert"> @TempData["SuccessMessage"] </div>
+}
+
+<div class="row">
+    <div class="col-md-4 offset-4">
+        <h2 class="mb-5">Giriş Yap</h2>
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <form method="post" asp-controller="Home" asp-action="Login" asp-route-returnUrl="@Context.Request.Query["returnUrl"]">
+            <!--Eğer aynı controllerdaki action method a yollayacaksak <form method="post> olarak bırakabiliriz(Best practice'dir.).Tercihimize göre.-->
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" type="email" class="form-control">
+                <span asp-validation-for="Email" class="form-text"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control">
+                <span asp-validation-for="Password" class="form-text"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3 form-check">
+                        <label asp-for="RememberMe" class="form-check-label me-2"></label>
+                        <input asp-for="RememberMe" type="checkbox" class="form-control form-check-input me-2 py-2">
+                        <span asp-validation-for="Email" class="form-text"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3 form-check">
+                        <a class="btn btn-link float-end" asp-controller="Home" asp-action="ForgetPassword">Şifremi unuttum</a>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Giriş Yap</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+﻿@model List<IdentityMvc.Areas.Admin.ViewModels.AssignRoleToUserViewModel>
+
+@{
+    ViewBag.Title = "Kullanıcının Rolleri ve Rol Atama";
+    Layout = "_Layout";
+}
+<div class="row">
+
+    <div class="col-md-6 offset-md-3">
+
+
+        <h3>Kullanıcının rollerini gör ve rol ata.</h3>
+        <hr/>
+
+        <form asp-action="AssignRoleToUser" asp-controller="Role" asp-area="Admin" asp-route-userId="@ViewBag.userId" method="post">
+            <!-- Burada for yerine foreach kullanırsak MVC bunun bir RoleAssignViewModel olduğunu algılayamıyor ve sonuca ulaşamıyoruz -->
+            @for (var i = 0; i < Model.Count; i++)
+            {
+                <div class="form-check mb-3">
+                    <input asp-for="@Model[i].Exist" type="checkbox" class="form-check-input"/>
+                    <label asp-for="@Model[i].Id" class="form-check-label">@Model[i].Name</label>
+                    <input type="hidden" asp-for="@Model[i].Name"/>
+                    <input type="hidden" asp-for="@Model[i].Id"/>
+                </div>
+            }
+            <button class="btn-success btn mt-2" type="submit"> Kaydet </button>
+        </form>
+        <div class="mt-3">
+            <a asp-controller="Home" asp-action="Users">Kullanıcı listesine geri dön.</a>
+        </div>
+    </div>
+</div>

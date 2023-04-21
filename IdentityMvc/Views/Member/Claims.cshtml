@@ -1,0 +1,27 @@
+@model List<ClaimViewModel>
+@{
+    ViewBag.Title = "Claim Based Authorization";
+    Layout = "_Layout";
+}
+
+<h2>User Claims</h2>
+<table class="table table-striped">
+    <thead>
+
+    <th> Issuer </th>
+    <th> Type </th>
+    <th> Value </th>
+  
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Issuer</td>
+            <td>@item.Type</td>
+            <td>@item.Value</td>
+           
+        </tr>
+    }
+    </tbody>
+</table>
