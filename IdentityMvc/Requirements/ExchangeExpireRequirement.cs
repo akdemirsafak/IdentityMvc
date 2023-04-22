@@ -1,37 +1,32 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
-namespace IdentityMvc.Requirements
+namespace IdentityMvc.Requirements;
+
+public class ExchangeExpireRequirement : IAuthorizationRequirement
 {
-    public class ExchangeExpireRequirement : IAuthorizationRequirement
-    {
-        
-    }
+}
 
-    public class ExchangeExpireRequirementHandler : AuthorizationHandler<ExchangeExpireRequirement>
+public class ExchangeExpireRequirementHandler : AuthorizationHandler<ExchangeExpireRequirement>
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+        ExchangeExpireRequirement requirement)
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ExchangeExpireRequirement requirement)
+        var hasExchangeExpireClaim = context.User.HasClaim(x => x.Type == "ExchangeExpireData");
+        if (!hasExchangeExpireClaim)
         {
-            var hasExchangeExpireClaim = context.User.HasClaim(x => x.Type == "ExchangeExpireData");
-            if (!hasExchangeExpireClaim)
-            {
-                context.Fail();
-                return Task.CompletedTask;
-            }
-
-                Claim exchangeExpireDate = context.User.FindFirst("ExchangeExpireData")!;
-            if (DateTime.Now>Convert.ToDateTime(exchangeExpireDate.Value))
-            {
-                context.Fail();
-                return Task.CompletedTask;
-            }
-            else
-            {
-                context.Succeed(requirement);
-            }
-
+            context.Fail();
             return Task.CompletedTask;
         }
-    }
 
+        var exchangeExpireDate = context.User.FindFirst("ExchangeExpireData")!;
+        if (DateTime.Now > Convert.ToDateTime(exchangeExpireDate.Value))
+        {
+            context.Fail();
+            return Task.CompletedTask;
+        }
+
+        context.Succeed(requirement);
+
+        return Task.CompletedTask;
+    }
 }

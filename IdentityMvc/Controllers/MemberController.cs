@@ -1,4 +1,5 @@
-﻿using IdentityMvc.Extensions;
+﻿using System.Security.Claims;
+using IdentityMvc.Extensions;
 using IdentityMvc.Models;
 using IdentityMvc.ViewModels;
 using Mapster;
@@ -123,19 +124,16 @@ public class MemberController : Controller
         }
         await _userManager.UpdateSecurityStampAsync(currentUser);
         await _signInManager.SignOutAsync();
-        await _signInManager.SignInAsync(currentUser, true);
+        
+        if (currentUser.BirthDate.HasValue)
+        {
+            await _signInManager.SignInWithClaimsAsync(currentUser, true, new[] {new Claim("BirthDate",currentUser.BirthDate.Value.ToString()) });
+        }
+        else
+        {
+            await _signInManager.SignInAsync(currentUser, true);
+        }
         TempData["SuccessMessage"] = "Üye bilgileri başarıyla değiştirilmiştir.";
-        // var userEditViewModel = new UserEditViewModel()
-        // {
-        //     UserName = currentUser.UserName,
-        //     Email = currentUser.Email,
-        //     BirthDate = currentUser.BirthDate,
-        //     City = currentUser.City,
-        //     Gender = currentUser.Gender,
-        //     PhoneNumber= currentUser.PhoneNumber
-        //     //Buraya picture da gelecek geldiğinde mapster ile mapleyeceğim.
-        //     
-        // };
         var userViewModel = new UserViewModel()
         {
             UserName = currentUser.UserName,
@@ -190,6 +188,12 @@ public class MemberController : Controller
     [HttpGet]
     [Authorize(Policy = "ExchangePolicy")]
     public IActionResult ExchangePage()
+    {
+        return View();
+    }
+    [HttpGet]
+    [Authorize(Policy = "ViolencePolicy")]
+    public IActionResult ViolencePage()
     {
         return View();
     }

@@ -55,7 +55,7 @@ public class HomeController : Controller
         var user = await _userManager.FindByNameAsync(model.UserName);
 
         var claimResult= await _userManager.AddClaimAsync(user!, exchangeExpireClaim); //user tablosunda kayıt olduğu tarihi tutmadan UserClaim tablosu üzerinden işlem yaptık.
-
+        
         if(!claimResult.Succeeded)
         {
             ModelState.AddModelErrorList(claimResult.Errors.Select(x => x.Description).ToList());
@@ -89,21 +89,31 @@ public class HomeController : Controller
             return View();
         }
 
+
         var loginResult = await _signInManager.PasswordSignInAsync(hasUser, model.Password, model.RememberMe, true);
         //buradaki false kullanıcı bilgilerinin uzun vadede cookie'de tutulması durumudur.
         //Kullanıcı n tane yanlış şifre girişi yaptığında hesabı kitlensin veya kitlenmesin.Default olarak 5 dir.
 
-        if (loginResult.Succeeded) return Redirect(returnUrl);
+      
         if (loginResult.IsLockedOut)
         {
-            ModelState.AddModelErrorList(new List<string> { "Hesabınız 3 dakikalığına kitlendi." });
+            ModelState.AddModelErrorList(new List<string> { "Hesabınıza 3 dakikalığına giriş yapamayacaksınız.." });
             return View();
         }
 
-        var lockoutCount = await _userManager.GetAccessFailedCountAsync(hasUser);
-        ModelState.AddModelErrorList(new List<string> { $"Yanlış giriş sayısı : {lockoutCount}" });
-        ModelState.AddModelErrorList(new List<string> { "Email veya şifre yanlış." });
+        if (!loginResult.Succeeded)
+        {     
+            ModelState.AddModelErrorList(new List<string> { $"Email veya şifre yanlış.", $"Başarısız giriş sayısı : {await _userManager.GetAccessFailedCountAsync(hasUser)}" });
+            return View();
+        }  
+    
+        if (hasUser.BirthDate.HasValue)
+        {
+            await _signInManager.SignInWithClaimsAsync(hasUser, model.RememberMe, new[] { new Claim("BirthDate", hasUser.BirthDate.Value.ToString()) });
+            return Redirect(returnUrl!);
+        }
         return View();
+            
     }
 
     public IActionResult ForgetPassword()

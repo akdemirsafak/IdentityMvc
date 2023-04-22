@@ -46,6 +46,7 @@ builder.Services.ConfigureApplicationCookie(opt =>
 builder.Services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory())); // ! Best practice olarak bu şekilde yaptık ayrıca herhangi bir class'ın constructor'unda IFileProvider ile istediğimiz klasöre erişebiliriz.
 builder.Services.AddScoped<IClaimsTransformation, UserClaimProvider>(); //Claim uygulaması için 
 builder.Services.AddScoped<IAuthorizationHandler,ExchangeExpireRequirementHandler>(); //Policy based için 
+builder.Services.AddScoped<IAuthorizationHandler,ViolenceRequirementHandler>(); //Policy based için
 builder.Services.AddAuthorization(opt =>
 {
     opt.AddPolicy("AnkaraPolicy", policy =>
@@ -55,6 +56,9 @@ builder.Services.AddAuthorization(opt =>
     });
     opt.AddPolicy("ExchangePolicy", policy =>{
         policy.AddRequirements( new ExchangeExpireRequirement()); //Dynamic Policy
+    });
+    opt.AddPolicy("ViolencePolicy", policy =>{
+        policy.AddRequirements( new ViolenceRequirement(){ThresholdAge = 18}); //Kullanıcının yaşına göre görebileceği sayfalar
     });
 });
 var app = builder.Build();
