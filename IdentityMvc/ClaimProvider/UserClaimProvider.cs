@@ -7,7 +7,7 @@ namespace IdentityMvc.ClaimProvider;
 
 public class UserClaimProvider : IClaimsTransformation //DIContainer'e geçtik.
 {
-    //Burada framework'ün davranışına müdahale ederek kendi istediğimiz dataları ekleriz.
+    //Burada framework'ün davranışına müdahale ederek kendi istediğimiz dataları ekleriz. AUTHORIZE ÇALIŞMADAN ÖNCE BURASI ÇALIŞIR.
     //Dikkat edilmesi gereken kritik dataları claim'lere eklememektir örneğin şifre
 
     private readonly UserManager<AppUser> _userManager;
