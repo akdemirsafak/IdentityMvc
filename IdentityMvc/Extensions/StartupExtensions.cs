@@ -1,6 +1,6 @@
 ﻿using IdentityMvc.CustomValidations;
 using IdentityMvc.Localizations;
-using IdentityMvc.Models;
+using Identity.Repository.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace IdentityMvc.Extensions;

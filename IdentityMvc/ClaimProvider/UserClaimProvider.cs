@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using IdentityMvc.Models;
+using Identity.Repository.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 
-namespace IdentityMvc.ClaimProvider;
+namespace Identity.Repository.ClaimProvider;
 
 public class UserClaimProvider : IClaimsTransformation //DIContainer'e geçtik.
 {

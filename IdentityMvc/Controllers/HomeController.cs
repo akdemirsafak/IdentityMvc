@@ -1,7 +1,8 @@
-﻿using IdentityMvc.Extensions;
-using IdentityMvc.Models;
-using IdentityMvc.Services;
-using IdentityMvc.ViewModels;
+﻿using Identity.Core.Models;
+using Identity.Core.ViewModels;
+using Identity.Repository.Models;
+using Identity.Service.Services;
+using IdentityMvc.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -50,13 +51,13 @@ public class HomeController : Controller
             return View();
         }
 
-        var exchangeExpireClaim=new Claim("ExchangeExpireData", DateTime.Now.AddDays(10).ToString()); //Burada 2. senaryo gereği kullanıcının kayıt olduğu günden itibaren 10 gün boyunca free kullanımı için claim oluşturuyoruz. 
-        
+        var exchangeExpireClaim = new Claim("ExchangeExpireData", DateTime.Now.AddDays(10).ToString()); //Burada 2. senaryo gereği kullanıcının kayıt olduğu günden itibaren 10 gün boyunca free kullanımı için claim oluşturuyoruz. 
+
         var user = await _userManager.FindByNameAsync(model.UserName);
 
-        var claimResult= await _userManager.AddClaimAsync(user!, exchangeExpireClaim); //user tablosunda kayıt olduğu tarihi tutmadan UserClaim tablosu üzerinden işlem yaptık.
-        
-        if(!claimResult.Succeeded)
+        var claimResult = await _userManager.AddClaimAsync(user!, exchangeExpireClaim); //user tablosunda kayıt olduğu tarihi tutmadan UserClaim tablosu üzerinden işlem yaptık.
+
+        if (!claimResult.Succeeded)
         {
             ModelState.AddModelErrorList(claimResult.Errors.Select(x => x.Description).ToList());
             return View();
@@ -64,9 +65,9 @@ public class HomeController : Controller
 
         TempData["SuccessMessage"] = "Üyelik işlemi başarıyla tamamlandı.";
         return RedirectToAction(nameof(SignUp));
-        
 
-      
+
+
     }
 
     public IActionResult Login()
@@ -94,7 +95,7 @@ public class HomeController : Controller
         //buradaki false kullanıcı bilgilerinin uzun vadede cookie'de tutulması durumudur.
         //Kullanıcı n tane yanlış şifre girişi yaptığında hesabı kitlensin veya kitlenmesin.Default olarak 5 dir.
 
-      
+
         if (loginResult.IsLockedOut)
         {
             ModelState.AddModelErrorList(new List<string> { "Hesabınıza 3 dakikalığına giriş yapamayacaksınız.." });
@@ -102,18 +103,18 @@ public class HomeController : Controller
         }
 
         if (!loginResult.Succeeded)
-        {     
+        {
             ModelState.AddModelErrorList(new List<string> { $"Email veya şifre yanlış.", $"Başarısız giriş sayısı : {await _userManager.GetAccessFailedCountAsync(hasUser)}" });
             return View();
-        }  
-    
+        }
+
         if (hasUser.BirthDate.HasValue)
         {
             await _signInManager.SignInWithClaimsAsync(hasUser, model.RememberMe, new[] { new Claim("BirthDate", hasUser.BirthDate.Value.ToString()) });
             return Redirect(returnUrl!);
         }
         return View();
-            
+
     }
 
     public IActionResult ForgetPassword()

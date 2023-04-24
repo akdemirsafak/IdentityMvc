@@ -1,7 +1,8 @@
 ﻿using System.Security.Claims;
+using Identity.Core.Models;
+using Identity.Core.ViewModels;
+using Identity.Repository.Models;
 using IdentityMvc.Extensions;
-using IdentityMvc.Models;
-using IdentityMvc.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.FileProviders;
 
-namespace IdentityMvc.Controllers;
+namespace Identity.Repository.Controllers;
 
 [Authorize]
 public class MemberController : Controller

@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using IdentityMvc.Models;
+using Identity.Repository.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 

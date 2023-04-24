@@ -1,6 +1,6 @@
-﻿using IdentityMvc.Areas.Admin.ViewModels;
+﻿using Identity.Repository.Models;
+using IdentityMvc.Areas.Admin.ViewModels;
 using IdentityMvc.Extensions;
-using IdentityMvc.Models;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

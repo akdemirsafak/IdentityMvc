@@ -1,5 +1,5 @@
-﻿using IdentityMvc.Areas.Admin.ViewModels;
-using IdentityMvc.Models;
+﻿using Identity.Repository.Models;
+using IdentityMvc.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

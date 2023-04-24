@@ -1,16 +1,17 @@
-using IdentityMvc.ClaimProvider;
+using Identity.Core.OptionModels;
+using Identity.Core.Permissions;
+using Identity.Repository.ClaimProvider;
+using Identity.Repository.Models;
+using Identity.Repository.Seeds;
+using Identity.Service.Services;
 using IdentityMvc.Extensions;
-using IdentityMvc.Models;
-using IdentityMvc.OptionModels;
-using IdentityMvc.Permissions;
 using IdentityMvc.Requirements;
-using IdentityMvc.Seeds;
-using IdentityMvc.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,13 +21,22 @@ builder.Services.AddControllersWithViews();
 //////////-----------Identity Started//////////////
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        options =>
+        {
+            options.MigrationsAssembly(Assembly.GetAssembly(typeof(AppDbContext))!.GetName().Name);
+        });
 });
+
 
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services
     .AddScoped<IEmailService, EmailService>(); //Soyutladık. Request response'a döndüğünde her seferinde belirlensin.
+builder.Services.AddScoped<IClaimsTransformation, UserClaimProvider>(); //Claim uygulaması için 
+builder.Services.AddScoped<IAuthorizationHandler, ExchangeExpireRequirementHandler>(); //Policy based için 
+builder.Services.AddScoped<IAuthorizationHandler, ViolenceRequirementHandler>(); //Policy based için
+builder.Services.AddScoped<IMemberService, MemberService>(); //Repositories / DbContexts single olmaz DbContext zaten Scoped lifetime'a sahiptir transaction bütünlüğünü sağlar.
 builder.Services.AddIdentityWithExtention();
 builder.Services.Configure<SecurityStampValidatorOptions>(
     options =>
@@ -50,9 +60,7 @@ builder.Services.ConfigureApplicationCookie(opt =>
 builder.Services.AddSingleton<IFileProvider>(
     new PhysicalFileProvider(Directory
         .GetCurrentDirectory())); // ! Best practice olarak bu şekilde yaptık ayrıca herhangi bir class'ın constructor'unda IFileProvider ile istediğimiz klasöre erişebiliriz.
-builder.Services.AddScoped<IClaimsTransformation, UserClaimProvider>(); //Claim uygulaması için 
-builder.Services.AddScoped<IAuthorizationHandler, ExchangeExpireRequirementHandler>(); //Policy based için 
-builder.Services.AddScoped<IAuthorizationHandler, ViolenceRequirementHandler>(); //Policy based için
+
 builder.Services.AddAuthorization(opt =>
 {
     opt.AddPolicy("AnkaraPolicy", policy =>
@@ -67,7 +75,7 @@ builder.Services.AddAuthorization(opt =>
     opt.AddPolicy("ViolencePolicy", policy =>
     {
         policy.AddRequirements(new ViolenceRequirement
-            { ThresholdAge = 18 }); //Kullanıcının yaşına göre görebileceği sayfalar
+        { ThresholdAge = 18 }); //Kullanıcının yaşına göre görebileceği sayfalar
     });
     opt.AddPolicy("OrderPermissionForReadOrDelete", policy =>
     {
@@ -87,7 +95,7 @@ builder.Services.AddAuthorization(opt =>
     {
         policy.RequireClaim("Permission", Permission.Stock.Delete);
     });
-    
+
 });
 var app = builder.Build();
 
