@@ -1,7 +1,26 @@
+@using Microsoft.AspNetCore.Authorization
 
 @{
     ViewBag.Title = "Order Page";
     Layout = "_Layout";
 }
+ @inject IAuthorizationService authorizationService
 
 <h2>Burası Order Page Bazı yetkiler gerektirir.Permission Yapısı.</h2>
+
+<div class="btn-group-vertical">
+@if (authorizationService.AuthorizeAsync(User,"Permission.Order.Read").Result.Succeeded)
+{
+    <button class="btn btn-outline-primary my-1">Permission.Order.Read</button>
+}
+@if (authorizationService.AuthorizeAsync(User,"Permission.Order.Delete").Result.Succeeded)
+{
+    <button class="btn btn-outline-secondary my-1">Permission.Order.Delete</button>
+}
+@if (authorizationService.AuthorizeAsync(User,"Permission.Stock.Delete").Result.Succeeded)
+{
+    <button class="btn btn-outline-info my-1">Permission.Stock.Delete</button>   
+}
+</div>
+
+
