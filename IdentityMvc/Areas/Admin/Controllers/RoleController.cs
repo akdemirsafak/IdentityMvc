@@ -79,9 +79,6 @@ public class RoleController : Controller
             TempData["SuccessMessage"] = "Rol başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
-        // TempData["SuccessMessage"] = "Rol güncellenemedi.";
-
-        // return RedirectToAction(nameof(Roles));
         ModelState.AddModelError(string.Empty, "Rol Güncellenemedi.");
         return View(roleUpdateViewModel);
     }

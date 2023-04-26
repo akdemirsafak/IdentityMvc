@@ -1,37 +1,24 @@
-﻿using System.Security.Claims;
-using Identity.Core.Models;
-using Identity.Core.ViewModels;
-using Identity.Repository.Models;
+﻿using Identity.Core.ViewModels;
+using Identity.Service.Services;
 using IdentityMvc.Extensions;
-using Mapster;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.FileProviders;
 
 namespace Identity.Repository.Controllers;
 
 [Authorize]
 public class MemberController : Controller
-{
-    private readonly SignInManager<AppUser> _signInManager;
-    private readonly UserManager<AppUser> _userManager;
-    private readonly IFileProvider _fileProvider;
+{   
+    private string userName => User.Identity!.Name!; //Set'i olmayan sadece get'e sahip property
+    private readonly IMemberService _memberService;
 
-    public MemberController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, IFileProvider fileProvider)
+    public MemberController(IMemberService memberService)
     {
-        _signInManager = signInManager;
-        _userManager = userManager;
-        _fileProvider = fileProvider;
+        _memberService = memberService;
     }
-
     public async Task<IActionResult> Index()
     {
-         var currentUser = await _userManager.FindByNameAsync(User.Identity!.Name!);
-    
-        var userViewModel = currentUser.Adapt<UserViewModel>();
-        userViewModel.PictureUrl = currentUser.Picture;
+        var userViewModel = await _memberService.GetUserByNameAsync(userName);
         return View(userViewModel);
     }
     // public async Task<IActionResult> LogOut()
@@ -42,7 +29,7 @@ public class MemberController : Controller
 
     public async Task Logout() //Daha efektif yöntemi
     {
-        await _signInManager.SignOutAsync();
+        await _memberService.LogoutAsync();
     }
 
     //Diğer controller'larda sadece üyelerin erişmesini istediğimiz endpointlere [Authorize] attribute ü kullanmalıyız.
@@ -56,93 +43,43 @@ public class MemberController : Controller
     public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
     {
         if (!ModelState.IsValid) return View();
-        var currentUser = await _userManager.FindByNameAsync(User.Identity!.Name!);
-
-        var checkOldPassword = await _userManager.CheckPasswordAsync(currentUser, model.OldPassword);
+        var checkOldPassword = await _memberService.CheckPasswordAsync(userName, model.OldPassword);
         if (!checkOldPassword)
         {
             ModelState.AddModelError(string.Empty, "Eski şifre yanlış");
             return View();
         }
+        var (isSuccess, errors) = await _memberService.ChangePasswordAsync(userName, model.OldPassword, model.NewPassword);
+        if (!isSuccess)
+        {
+            ModelState.AddModelErrorList(errors!);
+        }
 
-        var resultChangePassword =
-            await _userManager.ChangePasswordAsync(currentUser, model.OldPassword, model.NewPassword);
-        if (!resultChangePassword.Succeeded)
-            ModelState.AddModelErrorList(resultChangePassword.Errors);
 
-        await _userManager
-            .UpdateSecurityStampAsync(
-                currentUser); //kullanıcının hassas bilgisi değiştiği için çıkış yapılmasını sağlar.
-        await _signInManager.SignOutAsync();
-        await _signInManager.PasswordSignInAsync(currentUser, model.NewPassword, true, false);
         TempData["SuccessMessage"] = "Şifreniz başarıyla yenilenmiştir.";
         return View();
     }
 
     public async Task<IActionResult> UserEdit()
     {
-        ViewBag.genderList = new SelectList(Enum.GetNames(typeof(Gender)));
-        var currentUser = await (_userManager.FindByNameAsync(User.Identity!.Name!))!;
-        var currentUserViewModel = new UserEditViewModel
-        {
-            UserName = currentUser!.UserName!,
-            Email = currentUser!.Email!,
-            PhoneNumber = currentUser.PhoneNumber,
-            BirthDate = currentUser.BirthDate,
-            City = currentUser.City,
-            Gender = currentUser.Gender
-        };
-        return View(currentUserViewModel);
+        ViewBag.genderList = _memberService.GetGenderSelectList();
+        return View(await _memberService.GetUserEditViewModelAsync(userName));
     }
     [HttpPost]
     public async Task<IActionResult> UserEdit(UserEditViewModel model)
     {
-        if(!ModelState.IsValid) return View(model);
-        var currentUser = await (_userManager.FindByNameAsync(User.Identity!.Name!));
-        currentUser.UserName = model.UserName;
-        currentUser.Email = model.Email;
-        currentUser.BirthDate = model.BirthDate;
-        currentUser.City = model.City;
-        currentUser.Gender = model.Gender;
-        currentUser.PhoneNumber= model.PhoneNumber;
-        if (model.Picture is not null && model.Picture.Length>0)
+        if (!ModelState.IsValid) return View(model);
+
+        var (isSuccess, errors) = await _memberService.EditUserAsync(userName, model);
+        if (!isSuccess)
         {
-            var wwwRootFolder = _fileProvider.GetDirectoryContents("wwwroot");
-            //Burda random bir dosya adı verelim.
-            var randomFileName = $"{Guid.NewGuid().ToString()}{Path.GetExtension(model.Picture.FileName)}";
-            var newPicture = Path.Combine(wwwRootFolder!.First(x=>x.Name=="userPictures").PhysicalPath!, randomFileName);
-            using var stream = new FileStream(newPicture, FileMode.Create);
-            await model.Picture.CopyToAsync(stream);
-            //Görsel kaydedilirken klasör isimleriyle birlikte kaydetmek ileride yapılacak değişikliklerde sıkıntı yaratacağı için db ye sadece dosya adı yazılmalı. 
-            currentUser.Picture = randomFileName;
-        }
-        
-        var updateToUserResult = await _userManager.UpdateAsync(currentUser);
-        if (!updateToUserResult.Succeeded)
-        {
-            ModelState.AddModelErrorList(updateToUserResult.Errors);
+            ModelState.AddModelErrorList(errors!);
             return View();
         }
-        await _userManager.UpdateSecurityStampAsync(currentUser);
-        await _signInManager.SignOutAsync();
-        
-        if (currentUser.BirthDate.HasValue)
-        {
-            await _signInManager.SignInWithClaimsAsync(currentUser, true, new[] {new Claim("BirthDate",currentUser.BirthDate.Value.ToString()) });
-        }
-        else
-        {
-            await _signInManager.SignInAsync(currentUser, true);
-        }
         TempData["SuccessMessage"] = "Üye bilgileri başarıyla değiştirilmiştir.";
-        var userViewModel = new UserViewModel()
-        {
-            UserName = currentUser.UserName,
-            Email = currentUser.Email,
-            City = currentUser.City,
-            Gender = currentUser.Gender,
-            PhoneNumber = currentUser.PhoneNumber
-        };
+
+        var userViewModel = await _memberService.GetUserEditViewModelAsync(userName);
+
         return RedirectToAction("Index", userViewModel);
     }
 
@@ -161,23 +98,17 @@ public class MemberController : Controller
 
     public IActionResult AccessDenied(string returnUrl)
     {
-        string message=string.Empty;
+        string message = string.Empty;
         message = "Bu sayfayı görmeye yetkiniz yoktur.";
         ViewBag.message = message;
-        
+
         return View();
     }
 
     [HttpGet]
     public IActionResult Claims()
     {
-        var userClaimsList = User.Claims.Select(x => new ClaimViewModel()
-        {
-            Issuer = x.Issuer,
-            Type = x.Type,
-            Value = x.Value
-        }).ToList();
-        return View(userClaimsList);
+        return View(_memberService.GetClaims(User));
     }
 
     [Authorize(Policy = "AnkaraPolicy")]
@@ -186,12 +117,14 @@ public class MemberController : Controller
     {
         return View();
     }
+
     [HttpGet]
     [Authorize(Policy = "ExchangePolicy")]
     public IActionResult ExchangePage()
     {
         return View();
     }
+
     [HttpGet]
     [Authorize(Policy = "ViolencePolicy")]
     public IActionResult ViolencePage()
