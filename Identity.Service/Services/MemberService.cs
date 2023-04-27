@@ -25,7 +25,7 @@ namespace Identity.Service.Services
 
         public async Task<(bool, IEnumerable<IdentityError>?)> ChangePasswordAsync(string userName, string oldPassword, string newPassword)
         {
-            var currentUser= await _userManager.FindByNameAsync(userName);
+            var currentUser= (await _userManager.FindByNameAsync(userName))!;
             var resultChangePassword =await _userManager.ChangePasswordAsync(currentUser!, oldPassword, newPassword);
             if (!resultChangePassword.Succeeded)
             {
@@ -34,6 +34,7 @@ namespace Identity.Service.Services
             await _userManager.UpdateSecurityStampAsync(currentUser); //kullanıcının hassas bilgisi değiştiği için çıkış yapılmasını sağlar.
             await _signInManager.SignOutAsync();
             await _signInManager.PasswordSignInAsync(currentUser, newPassword, true, false);
+  
             return (true, null); //IEnumerable null olabilir bir type olduğu için null dönmemize izin verdi.
         }
 

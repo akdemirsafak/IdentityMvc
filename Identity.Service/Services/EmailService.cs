@@ -15,6 +15,26 @@ public class EmailService : IEmailService
         _emailSettings = options.Value;
     }
 
+    public async Task ConfirmEmailAsync(string link,string toEmail)
+    {
+        var smtpClient = new SmtpClient();
+        smtpClient.Host = _emailSettings.Host;
+        smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+        smtpClient.UseDefaultCredentials = false; //kendi credential'ımız olacak.
+        smtpClient.Port = 587;
+        smtpClient.Credentials = new NetworkCredential(_emailSettings.Email, _emailSettings.Password);
+        smtpClient.EnableSsl = true;
+        var mailMessage = new MailMessage();
+
+        mailMessage.From = new MailAddress(_emailSettings.Email);
+        mailMessage.To.Add(toEmail);
+        mailMessage.Subject = "Localhost Email Doğrulama.";
+        mailMessage.Body = @$"<h4>Hesabınızı doğrulamak için aşağıdaki linke tıklayınız.</h4><br/>
+            <p><a href={link}>Hesabınızı doğrulamak için tıklayınız.</a></p>";
+        mailMessage.IsBodyHtml = true;
+        await smtpClient.SendMailAsync(mailMessage);
+    }
+
     public async Task SendResetPasswordEmailAsync(string resetPasswordEmailLink, string toEmail)
     {
         var smtpClient = new SmtpClient();

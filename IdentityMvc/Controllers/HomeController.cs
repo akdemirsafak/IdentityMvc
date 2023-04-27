@@ -50,11 +50,17 @@ public class HomeController : Controller
             ModelState.AddModelErrorList(identityResult.Errors.Select(x => x.Description).ToList());
             return View();
         }
-
         var exchangeExpireClaim = new Claim("ExchangeExpireData", DateTime.Now.AddDays(10).ToString()); //Burada 2. senaryo gereği kullanıcının kayıt olduğu günden itibaren 10 gün boyunca free kullanımı için claim oluşturuyoruz. 
 
         var user = await _userManager.FindByNameAsync(model.UserName);
-
+        //kullanıcı mail'ini doğrulaması
+        string confirmationEmailToken =(await _userManager.GenerateEmailConfirmationTokenAsync(user!))!; 
+        string link = (Url.Action("ConfirmEmail", "Home", new {
+        userId=user.Id,
+        token=confirmationEmailToken
+        },protocol:HttpContext.Request.Scheme))!;
+        await _emailService.ConfirmEmailAsync(link,user.Email!);
+        /// Kullanıcı mail doğrulaması bitti
         var claimResult = await _userManager.AddClaimAsync(user!, exchangeExpireClaim); //user tablosunda kayıt olduğu tarihi tutmadan UserClaim tablosu üzerinden işlem yaptık.
 
         if (!claimResult.Succeeded)
@@ -65,8 +71,6 @@ public class HomeController : Controller
 
         TempData["SuccessMessage"] = "Üyelik işlemi başarıyla tamamlandı.";
         return RedirectToAction(nameof(SignUp));
-
-
 
     }
 
@@ -87,6 +91,11 @@ public class HomeController : Controller
         {
             ModelState.AddModelError(
                 string.Empty, "Email veya şifre yanlış.");
+            return View();
+        }
+        if (!_userManager.IsEmailConfirmedAsync(hasUser).Result)
+        {
+            ModelState.AddModelErrorList(new List<string> { "Hesabınızı doğrulamanız gerekli." });
             return View();
         }
 
@@ -145,7 +154,7 @@ public class HomeController : Controller
                 token = passwordResetToken
             }, HttpContext.Request.Scheme);
 
-        await _emailService.SendResetPasswordEmailAsync(passwordResetLink, model.Email);
+        await _emailService.SendResetPasswordEmailAsync(passwordResetLink!, model.Email);
 
         TempData["SuccessMessage"] = "Parola belirleme linki e posta adresinize gönderilmiştir.";
         return RedirectToAction(nameof(ForgetPassword));
@@ -177,6 +186,44 @@ public class HomeController : Controller
             TempData["SuccessMessage"] = "Şifreniz başarıyla yenilenmiştir.";
         else
             ModelState.AddModelErrorList(result.Errors.Select(x => x.Description).ToList());
+        return RedirectToAction(nameof(Login));
+    }
+
+
+    [HttpGet]
+    public IActionResult ConfirmEmail()
+    {
+        return View();
+    }
+    [HttpPost]
+    public async Task<IActionResult> ConfirmEmail(string email) 
+    {
+
+        if (!ModelState.IsValid) return View();
+    
+        var hasUser = await _userManager.FindByEmailAsync(email);
+        if (hasUser == null)
+        {
+            ModelState.AddModelErrorList(new List<string> { "Bu email adresine sahip kullanıcı bulunamamıştır." });
+            return View(); //Redirect yapılması mantıksal açıdan doğru değil çünkü ModelState ile data tutamayız.
+        }
+        if (hasUser.EmailConfirmed)
+        {
+            TempData["SuccessMessage"] = "Mail adresiniz zaten doğrulanmış.";
+            return RedirectToAction(nameof(Login)); 
+        }
+
+        string confirmationEmailToken = (await _userManager.GenerateEmailConfirmationTokenAsync(hasUser))!;
+        string link = (Url.Action("Login", "Home", new
+        {
+            userId = hasUser.Id,
+            token = confirmationEmailToken
+        }, protocol: HttpContext.Request.Scheme))!;
+
+        await _emailService.ConfirmEmailAsync(link, email);
+
+        TempData["SuccessMessage"] = "Mail doğrulama linki e posta adresinize gönderilmiştir.";
+       
         return RedirectToAction(nameof(Login));
     }
 }

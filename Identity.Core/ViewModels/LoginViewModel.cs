@@ -5,7 +5,7 @@ namespace Identity.Core.Models;
 
 public class LoginViewModel
 {
-    [DisplayName("Kullanıcı Adı : ")]
+    [DisplayName("Email : ")]
     [Required(ErrorMessage = "Email boş geçilemez.")]
     public string Email { get; set; }
 
