@@ -12,7 +12,7 @@ public class SignUpViewModel
     [DisplayName("Email : ")]
     [Required(ErrorMessage = "Email geçilemez.")]
     public string Email { get; set; } = null!;
- 
+
     [DisplayName("Telefon Numarası : ")]
     [Required(ErrorMessage = "Telefon numarası boş geçilemez.")]
     public string PhoneNumber { get; set; } = null!;

@@ -17,6 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+var configuration = builder.Configuration;
+builder.Services.AddAuthentication().AddFacebook(facebookSettings =>
+{
+    facebookSettings.AppId = configuration["Authentication:Facebook:AppId"];
+    facebookSettings.AppSecret = configuration["Authentication:Facebook:AppSecret"];
+});
 
 //////////-----------Identity Started//////////////
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -27,8 +33,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             options.MigrationsAssembly(Assembly.GetAssembly(typeof(AppDbContext))!.GetName().Name);
         });
 });
-
-
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services

@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using Identity.Core.Permissions;
-using Microsoft.AspNetCore.Identity;
 using Identity.Repository.Models;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Identity.Repository.Seeds;
 

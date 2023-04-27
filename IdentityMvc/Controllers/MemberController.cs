@@ -8,7 +8,7 @@ namespace Identity.Repository.Controllers;
 
 [Authorize]
 public class MemberController : Controller
-{   
+{
     private string userName => User.Identity!.Name!; //Set'i olmayan sadece get'e sahip property
     private readonly IMemberService _memberService;
 

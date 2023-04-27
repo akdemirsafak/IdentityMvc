@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace IdentityMvc.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(Roles ="Admin")]
+[Authorize(Roles = "Admin")]
 public class HomeController : Controller
 {
     private readonly RoleManager<AppRole> _roleManager;
@@ -42,7 +42,7 @@ public class HomeController : Controller
     public async Task<IActionResult> DeleteUser(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        var result=await _userManager.DeleteAsync(user!);
+        var result = await _userManager.DeleteAsync(user!);
         if (result.Succeeded)
         {
             TempData["SuccessMessage"] = "Kullanıcı silindi";

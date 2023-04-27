@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace IdentityMvc.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(Roles ="Admin")]
+[Authorize(Roles = "Admin")]
 public class RoleController : Controller
 {
     private readonly RoleManager<AppRole> _roleManager;
@@ -32,13 +32,13 @@ public class RoleController : Controller
         return View(roles);
     }
 
-    [Authorize(Roles="role-action")]
+    [Authorize(Roles = "role-action")]
     public IActionResult RoleCreate()
     {
         return View();
     }
-    
-    [Authorize(Roles="role-action")]
+
+    [Authorize(Roles = "role-action")]
     [HttpPost]
     public async Task<IActionResult> RoleCreate(RoleCreateViewModel roleCreateViewModel)
     {
@@ -52,7 +52,7 @@ public class RoleController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-    [Authorize(Roles="role-action")]
+    [Authorize(Roles = "role-action")]
     public async Task<IActionResult> RoleUpdate(string id)
     {
         var roleToUpdate = await _roleManager.FindByIdAsync(id);
@@ -60,7 +60,7 @@ public class RoleController : Controller
         var roleUpdateViewModel = roleToUpdate.Adapt<RoleUpdateViewModel>();
         return View(roleUpdateViewModel); //AppRole u RoleUpdateViewModel e mapledik.
     }
-    [Authorize(Roles="role-action")]
+    [Authorize(Roles = "role-action")]
     [HttpPost]
     public async Task<IActionResult> RoleUpdate(RoleUpdateViewModel roleUpdateViewModel)
     {
@@ -82,7 +82,7 @@ public class RoleController : Controller
         ModelState.AddModelError(string.Empty, "Rol Güncellenemedi.");
         return View(roleUpdateViewModel);
     }
-    [Authorize(Roles="role-action")]
+    [Authorize(Roles = "role-action")]
     public async Task<IActionResult> RoleDelete(string id)
     {
         var roleToDelete = _roleManager.FindByIdAsync(id).Result;
@@ -104,11 +104,11 @@ public class RoleController : Controller
         //ModelState.AddModelError(String.Empty, "Rol Silinemedi.");
         return RedirectToAction(nameof(Index));
     }
-    [Authorize(Roles="role-action")]
+    [Authorize(Roles = "role-action")]
     public async Task<IActionResult> AssignRoleToUser(string userId)
     {
         var currentUser = (await _userManager.FindByIdAsync(userId))!;
-        ViewBag.userId=userId;
+        ViewBag.userId = userId;
         var roles = await _roleManager.Roles.ToListAsync();
         var userRoles = await _userManager.GetRolesAsync(currentUser);
         var roleViewModelList = new List<AssignRoleToUserViewModel>();
@@ -125,14 +125,14 @@ public class RoleController : Controller
 
         return View(roleViewModelList);
     }
-   
+
     [HttpPost]
-    [Authorize(Roles="role-action")]
+    [Authorize(Roles = "role-action")]
     public async Task<IActionResult> AssignRoleToUser(string userId, List<AssignRoleToUserViewModel> roleAssignListViewModel)
     {
         // var userId = TempData["userId"].ToString();
         // var user =await  _userManager.FindByIdAsync(userId);
-        var userToAssignRoles= (await _userManager.FindByIdAsync(userId))!;
+        var userToAssignRoles = (await _userManager.FindByIdAsync(userId))!;
         foreach (var role in roleAssignListViewModel)
         {
             if (role.Exist)
@@ -144,6 +144,6 @@ public class RoleController : Controller
                 await _userManager.RemoveFromRoleAsync(userToAssignRoles, role.Name);
             }
         }
-        return RedirectToAction(nameof(HomeController.Users),"Home");
+        return RedirectToAction(nameof(HomeController.Users), "Home");
     }
 }

@@ -42,13 +42,14 @@
                         <a class="btn btn-link float-end" asp-controller="Home" asp-action="ForgetPassword">Şifremi unuttum</a>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="">
                     <div class="mb-3 form-check">
-                        <a class="btn btn-link float-end" asp-controller="Home" asp-action="ConfirmEmail">Email adresinizi doğrulamak için tıklayınız</a>
+                        <a class="float-end" asp-controller="Home" asp-action="ConfirmEmail">Email adresinizi doğrulamak için tıklayınız</a>
                     </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Giriş Yap</button>
+            <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button> 
+            <button asp-action="FacebookLogin" class="btn btn-block btn-primary float-end"> Facebook ile giriş yap</button>
         </form>
     </div>
 </div>

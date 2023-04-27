@@ -1,7 +1,7 @@
 ﻿namespace Identity.Core.Models;
 
-public enum Gender:byte
+public enum Gender : byte
 {
-    Kadin=1,Erkek
-    
+    Kadin = 1, Erkek
+
 }

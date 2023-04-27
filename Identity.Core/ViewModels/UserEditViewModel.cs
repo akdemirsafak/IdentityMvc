@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using Identity.Core.Models;
+﻿using Identity.Core.Models;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Identity.Core.ViewModels;
 
@@ -14,20 +14,20 @@ public class UserEditViewModel
     [DisplayName("Email : ")]
     [Required(ErrorMessage = "Email geçilemez.")]
     public string Email { get; set; } = null!;
- 
+
     [DisplayName("Telefon Numarası : ")]
     [Required(ErrorMessage = "Telefon numarası boş geçilemez.")]
     public string PhoneNumber { get; set; } = null!;
-    
+
     [DisplayName("Doğum Tarihi : ")]
     [DataType(DataType.Date)]
     public DateTime? BirthDate { get; set; }
-    
+
     [DisplayName("Şehir : ")]
     public string? City { get; set; }
     [DisplayName("Profil Resmi : ")]
     public IFormFile? Picture { get; set; }
-    
+
     [DisplayName("Cinsiyet : ")]
     public Gender? Gender { get; set; }
 }

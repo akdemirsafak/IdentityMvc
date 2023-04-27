@@ -10,7 +10,7 @@ public class UserPictureThumbnailTagHelper : TagHelper
         output.TagName = "img";
         if (string.IsNullOrEmpty(PictureUrl))
         {
-            output.Attributes.SetAttribute("src","/userPictures/default-user-profile-picture.png");
+            output.Attributes.SetAttribute("src", "/userPictures/default-user-profile-picture.png");
         }
         else
         {

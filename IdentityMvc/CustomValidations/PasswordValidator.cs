@@ -10,11 +10,11 @@ public class PasswordValidator : IPasswordValidator<AppUser>
         var errors = new List<IdentityError>();
         if (password!.ToLower().Contains(user.UserName.ToLower()))
             errors.Add(new IdentityError
-                { Code = "PasswordContainUserName", Description = "Şifre kullanıcı adı içeremez." });
+            { Code = "PasswordContainUserName", Description = "Şifre kullanıcı adı içeremez." });
 
         if (password!.StartsWith("1234"))
             errors.Add(new IdentityError
-                { Code = "PasswordContainStart1234", Description = "Şifre 1234 ile başlayamaz." });
+            { Code = "PasswordContainStart1234", Description = "Şifre 1234 ile başlayamaz." });
 
         if (errors.Any()) return Task.FromResult(IdentityResult.Failed());
         return Task.FromResult(IdentityResult.Success);

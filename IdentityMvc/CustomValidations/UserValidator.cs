@@ -16,7 +16,8 @@ public class UserValidator : IUserValidator<AppUser>
         if (isDigit)
             errors.Add(new IdentityError
             {
-                Code = "UserNameContainFirstLetterDigit", Description = "Kullanıcı adının ilk karakteri sayı olamaz."
+                Code = "UserNameContainFirstLetterDigit",
+                Description = "Kullanıcı adının ilk karakteri sayı olamaz."
             });
 
         if (errors.Any()) return Task.FromResult(IdentityResult.Failed());

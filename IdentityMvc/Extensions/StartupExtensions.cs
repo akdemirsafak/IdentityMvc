@@ -1,6 +1,6 @@
-﻿using IdentityMvc.CustomValidations;
+﻿using Identity.Repository.Models;
+using IdentityMvc.CustomValidations;
 using IdentityMvc.Localizations;
-using Identity.Repository.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace IdentityMvc.Extensions;
@@ -19,7 +19,7 @@ public static class StartupExtensions
                     //Default ayarları değiştirmek istersek bu kısımda ayarlamalar yapabiliriz.
                     options.User.RequireUniqueEmail = true; // UserName default olarak unique !
                     options.User.AllowedUserNameCharacters =
-                        "qwertyuopasdfghjklizxcvbnm1234567890_"; //sadece küçük harfler, sayılar ve _
+                        "qwertyuopasdfghjklizxcvbnm1234567890_-."; //sadece küçük harfler, sayılar ve _
 
                     //Parola ile ilgili düzenlemeler.
                     options.Password.RequiredLength = 6;

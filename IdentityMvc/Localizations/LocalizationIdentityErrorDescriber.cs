@@ -7,7 +7,7 @@ public class LocalizationIdentityErrorDescriber : IdentityErrorDescriber
     public override IdentityError DuplicateUserName(string userName)
     {
         return new IdentityError
-            { Code = "DuplicateUserName", Description = $"'{userName}' kullanıcı adı zaten kullanılıyor." };
+        { Code = "DuplicateUserName", Description = $"'{userName}' kullanıcı adı zaten kullanılıyor." };
         //return base.DuplicateUserName(userName);
     }
 

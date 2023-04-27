@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityMvc.Controllers;
 
-public class OrderController:Controller
+public class OrderController : Controller
 {
     [Authorize(Policy = "OrderPermissionForReadOrDelete")]
     public IActionResult Index()

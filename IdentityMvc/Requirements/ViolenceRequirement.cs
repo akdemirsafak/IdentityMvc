@@ -1,5 +1,5 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace IdentityMvc.Requirements;
 
@@ -24,11 +24,11 @@ public class ViolenceRequirementHandler : AuthorizationHandler<ViolenceRequireme
         var today = DateTime.Now;
         DateTime birthDate = Convert.ToDateTime(birthDateClaim.Value);
         var age = today.Year - birthDate.Year;
-        
+
         //Her 4 senede 1 şubat 29 olduğu için Artık yıl hesabı yapıyoruz.
-        if (birthDate>today.AddYears(-age)) age--; //ARTIK YIL HESAPLAMASIDIR
-       
-        if (requirement.ThresholdAge>age) //Kullanıcının yaşı belirlediğimiz yaştan küçükse
+        if (birthDate > today.AddYears(-age)) age--; //ARTIK YIL HESAPLAMASIDIR
+
+        if (requirement.ThresholdAge > age) //Kullanıcının yaşı belirlediğimiz yaştan küçükse
         {
             context.Fail();
             return Task.CompletedTask;

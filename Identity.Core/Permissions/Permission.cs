@@ -24,5 +24,5 @@ public static class Permission
         public const string Delete = "Permission.Catalog.Delete";
     }
 
-   
+
 }

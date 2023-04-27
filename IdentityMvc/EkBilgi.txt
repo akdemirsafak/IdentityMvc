@@ -12,3 +12,5 @@ Permission Yapısı
 ** Büyük çaplı permission yapısında roleclaim tablosu kullanılması best practice değildir.Çünkü direkt cookie'ye eklenir.
 Burada birinci yaklaşım kullanıcı login olurken claimler'in eklenmesini yapmayız(çok fazla claim var) bunu dynamic olarak yaparız.
 Burada signInManager kullanmak zorunda değiliz.HttpContext üzerinden gelen SignInAsync methodunu kullanabiliriz.Burada custom claims oluşturabiliriz.
+
+3th authentication için Proje->Manage User Secrets'e(secrets.json) girip api ile ilgili Id şifre gibi bilgileri yazıyoruz.

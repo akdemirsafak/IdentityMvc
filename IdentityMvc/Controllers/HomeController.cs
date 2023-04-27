@@ -54,12 +54,13 @@ public class HomeController : Controller
 
         var user = await _userManager.FindByNameAsync(model.UserName);
         //kullanıcı mail'ini doğrulaması
-        string confirmationEmailToken =(await _userManager.GenerateEmailConfirmationTokenAsync(user!))!; 
-        string link = (Url.Action("ConfirmEmail", "Home", new {
-        userId=user.Id,
-        token=confirmationEmailToken
-        },protocol:HttpContext.Request.Scheme))!;
-        await _emailService.ConfirmEmailAsync(link,user.Email!);
+        string confirmationEmailToken = (await _userManager.GenerateEmailConfirmationTokenAsync(user!))!;
+        string link = (Url.Action("ConfirmEmail", "Home", new
+        {
+            userId = user.Id,
+            token = confirmationEmailToken
+        }, protocol: HttpContext.Request.Scheme))!;
+        await _emailService.ConfirmEmailAsync(link, user.Email!);
         /// Kullanıcı mail doğrulaması bitti
         var claimResult = await _userManager.AddClaimAsync(user!, exchangeExpireClaim); //user tablosunda kayıt olduğu tarihi tutmadan UserClaim tablosu üzerinden işlem yaptık.
 
@@ -76,6 +77,10 @@ public class HomeController : Controller
 
     public IActionResult Login()
     {
+        if (User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction(nameof(Index));
+        }
         return View();
     }
 
@@ -196,11 +201,11 @@ public class HomeController : Controller
         return View();
     }
     [HttpPost]
-    public async Task<IActionResult> ConfirmEmail(string email) 
+    public async Task<IActionResult> ConfirmEmail(string email)
     {
 
         if (!ModelState.IsValid) return View();
-    
+
         var hasUser = await _userManager.FindByEmailAsync(email);
         if (hasUser == null)
         {
@@ -210,7 +215,7 @@ public class HomeController : Controller
         if (hasUser.EmailConfirmed)
         {
             TempData["SuccessMessage"] = "Mail adresiniz zaten doğrulanmış.";
-            return RedirectToAction(nameof(Login)); 
+            return RedirectToAction(nameof(Login));
         }
 
         string confirmationEmailToken = (await _userManager.GenerateEmailConfirmationTokenAsync(hasUser))!;
@@ -223,7 +228,77 @@ public class HomeController : Controller
         await _emailService.ConfirmEmailAsync(link, email);
 
         TempData["SuccessMessage"] = "Mail doğrulama linki e posta adresinize gönderilmiştir.";
-       
+
         return RedirectToAction(nameof(Login));
+    }
+
+    public IActionResult FacebookLogin(string returnUrl = null)
+    {
+        string redirectUrl = Url.Action("ExternalResponse", "Home", new
+        {
+            ReturnUrl = returnUrl
+        }); //Kullanıcının facebook login işleminden sonra yönlendirileceği yer.
+        var properties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", redirectUrl);
+        return new ChallengeResult("Facebook", properties); //Ne verilirse kullanıcıyı oraya yönlendirir.Verdiğimiz parametrelerle ActionResult'tan kalıtım alır.
+    }
+
+    public async Task<IActionResult> ExternalResponse(string returnUrl = "/")
+    {
+        ExternalLoginInfo externalLoginInfo = (await _signInManager.GetExternalLoginInfoAsync())!; //Kullanıcının login olmasıyla ilgili bilgiler getirecek.
+        //LoginProvider'da kullanıcı facebook'la login facebookId si gelir.
+
+        if (externalLoginInfo == null) return RedirectToAction(nameof(Login));                  //yukarıda kullanıcıyı facebook login sayfasına gönderdik fakat kullanıcı bilgileri göndermezse kontrolü yapıyoruz.
+
+
+
+        Microsoft.AspNetCore.Identity.SignInResult signInResult = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, true); //Buradaki true' cookie'de yaptığımız ayarların geçerli olup olmaması durumunu özetler.
+        if (signInResult.Succeeded) //Daha önce bu yöntemle kayıt olunduysa db'de bu bilgiler succceded ile gelecek.
+        {
+            return Redirect(returnUrl);
+        }
+        //Kullanıcı ilk defa kayıt oluyorsa bu işlemler yapılacak
+        else
+        {
+            AppUser user = new();
+
+            user.Email = externalLoginInfo.Principal.FindFirst(ClaimTypes.Email)!.Value;
+            string externalUserId = externalLoginInfo.Principal.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            if (externalLoginInfo.Principal.HasClaim(x => x.Type == ClaimTypes.Name))
+            {
+                string userName = externalLoginInfo.Principal.FindFirst(ClaimTypes.Name)!.Value;
+                userName = userName.Replace(' ', '-').ToLower().Replace('ş', 's') + externalUserId.Substring(0, 5).ToString();
+                //Username olarak direkt email adresi verilen siteler de var bu da farklı bir çözüm.
+                user.UserName = userName;
+            }
+            else
+            {
+                user.UserName = externalLoginInfo.Principal.FindFirst(ClaimTypes.Email)!.Value;
+            }
+            IdentityResult createUserResult = await _userManager.CreateAsync(user);
+            if (createUserResult.Succeeded)
+            {
+                IdentityResult loginResult = await _userManager.AddLoginAsync(user, externalLoginInfo);
+                if (loginResult.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, true);
+                    return Redirect(returnUrl);
+                }
+                else
+                {
+                    ModelState.AddModelErrorList(loginResult.Errors);
+                }
+            }
+            else
+            {
+                ModelState.AddModelErrorList(createUserResult.Errors);
+            }
+        }
+        return RedirectToAction(nameof(ErrorPage));
+    }
+
+
+    public IActionResult ErrorPage()
+    {
+        return View();
     }
 }

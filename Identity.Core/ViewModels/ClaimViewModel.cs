@@ -6,5 +6,5 @@ public class ClaimViewModel
     public required string Issuer { get; set; } //Claim dağıtıcı. Kendi sistemimizden geliyorsa Local Authority görülür.Kullanıcının hangi yöntemle login olduğunu anlamamız açısından önemlidir.
     public required string Type { get; set; }
     public required string Value { get; set; }
-    
+
 }

@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Identity.Core.Models;
+﻿using Identity.Core.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Identity.Repository.Models;
 

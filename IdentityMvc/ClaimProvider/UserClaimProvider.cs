@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using Identity.Repository.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Identity.Repository.ClaimProvider;
 
@@ -36,7 +36,7 @@ public class UserClaimProvider : IClaimsTransformation //DIContainer'e geçtik.
         // ! Yukarıdaki yöntem sayfa refresh edildiğinde veya başka sayfalara geçtiğimizde çalışıyor.Bu best practice ve performanslı değildir. Her seferinde claim'e eklemenin önüne geçeceğiz.
 
         //Bu kısmı Login action'da yapacağız.
-      
+
 
     }
 }
