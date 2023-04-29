@@ -17,11 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-var configuration = builder.Configuration;
 builder.Services.AddAuthentication().AddFacebook(facebookSettings =>
 {
-    facebookSettings.AppId = configuration["Authentication:Facebook:AppId"];
-    facebookSettings.AppSecret = configuration["Authentication:Facebook:AppSecret"];
+    facebookSettings.AppId = builder.Configuration["Authentication:Facebook:AppId"];
+    facebookSettings.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
 });
 
 //////////-----------Identity Started//////////////

@@ -26,7 +26,7 @@
 
             <div class="mb-3">
                 <label asp-for="UserName" class="form-label"></label>
-                <input asp-for="UserName" type="text" class="form-control">
+                <input asp-for="UserName" autofocus type="text" class="form-control">
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
             <div class="mb-3">
@@ -47,7 +47,7 @@
 
             <div class="mb-3">
                 <label asp-for="PhoneNumber" class="form-label"></label>
-                <input for="PhoneNumber" asp-for="PhoneNumber" class="form-control">
+                <input for="PhoneNumber" type="tel" asp-for="PhoneNumber" class="form-control">
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
             <button type="submit" class="btn btn-primary">Kayıt Ol</button>

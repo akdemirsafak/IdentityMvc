@@ -280,7 +280,8 @@ public class HomeController : Controller
                 IdentityResult loginResult = await _userManager.AddLoginAsync(user, externalLoginInfo);
                 if (loginResult.Succeeded)
                 {
-                    await _signInManager.SignInAsync(user, true);
+                    await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider,externalLoginInfo.ProviderKey,true); // 3th party auth. olduğunu belirtmek için, ayrıca claim'e bu eklenir claim based authorization yapmamıza da imkanımız olur.
+                    //await _signInManager.SignInAsync(user, true);
                     return Redirect(returnUrl);
                 }
                 else
@@ -293,7 +294,11 @@ public class HomeController : Controller
                 ModelState.AddModelErrorList(createUserResult.Errors);
             }
         }
-        return RedirectToAction(nameof(ErrorPage));
+        List<string> errors = ModelState.Values.SelectMany(x=>x.Errors).Select(y=>y.ErrorMessage).ToList();
+
+
+        //return RedirectToAction(nameof(ErrorPage));
+        return View("ErrorPage", errors);
     }
 
 

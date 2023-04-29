@@ -110,8 +110,11 @@ namespace Identity.Service.Services
                 return (false,updateToUserResult.Errors);
             }
 
-            await _userManager.UpdateSecurityStampAsync(currentUser);
-            await _signInManager.SignOutAsync();
+            // await _userManager.UpdateSecurityStampAsync(currentUser);
+            // await _signInManager.SignOutAsync();
+            Task.WaitAll(
+                _userManager.UpdateSecurityStampAsync(currentUser),
+                _signInManager.SignOutAsync());
 
             if (currentUser.BirthDate.HasValue)
             {

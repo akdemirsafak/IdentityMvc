@@ -1,1 +1,17 @@
-﻿<h2>Error sayfası</h2>
+﻿@model List<string>
+@{
+    ViewData["Title"] = "Error Page";
+}
+
+
+<h2>Error sayfası</h2>
+<hr />
+<div>
+    <ul>
+        @foreach (string error in Model)
+        {
+            <li>@error</li>
+        }
+    </ul>
+</div>
+
