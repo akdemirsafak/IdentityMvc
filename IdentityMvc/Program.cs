@@ -21,6 +21,10 @@ builder.Services.AddAuthentication().AddFacebook(facebookSettings =>
 {
     facebookSettings.AppId = builder.Configuration["Authentication:Facebook:AppId"];
     facebookSettings.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+}).AddGoogle(googleSettings =>
+{
+    googleSettings.ClientId = builder.Configuration["Authentication:Google:ClientID"];
+    googleSettings.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
 
 //////////-----------Identity Started//////////////

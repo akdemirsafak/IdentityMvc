@@ -241,6 +241,16 @@ public class HomeController : Controller
         var properties = _signInManager.ConfigureExternalAuthenticationProperties("Facebook", redirectUrl);
         return new ChallengeResult("Facebook", properties); //Ne verilirse kullanıcıyı oraya yönlendirir.Verdiğimiz parametrelerle ActionResult'tan kalıtım alır.
     }
+    public IActionResult GoogleLogin(string returnUrl = null)
+    {
+        string redirectUrl = Url.Action("ExternalResponse", "Home", new
+        {
+            ReturnUrl = returnUrl
+        }); //Kullanıcının facebook login işleminden sonra yönlendirileceği yer.
+        var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+        return new ChallengeResult("Google", properties); //Ne verilirse kullanıcıyı oraya yönlendirir.Verdiğimiz parametrelerle ActionResult'tan kalıtım alır.
+    }
+
 
     public async Task<IActionResult> ExternalResponse(string returnUrl = "/")
     {
