@@ -36,7 +36,8 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> SignUp(SignUpViewModel model)
     {
-        if (!ModelState.IsValid) return View();
+        if (!ModelState.IsValid)
+            return View();
 
         var identityResult = await _userManager.CreateAsync(new AppUser
         {
@@ -87,7 +88,8 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
     {
-        if (!ModelState.IsValid) return View();
+        if (!ModelState.IsValid)
+            return View();
 
         returnUrl = returnUrl ?? Url.Action("Index", "Home");
         //var result = _signInManager.PasswordSignInAsync(model.UserName, model.Password, model); //Eğer username ila giriş yaptırıyorsak
@@ -139,7 +141,8 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> ForgetPassword(ForgetPasswordViewModel model)
     {
-        if (!ModelState.IsValid) return View();
+        if (!ModelState.IsValid)
+            return View();
         //link gönderilecek
         //https://localhost:7000?userid=xxxx&token=asdasd123 benzeri bir yapı oluşacak.
         //Burada username de gönderilebilir.Tercihimize bağlı. Token'ın önemi : Bu şifre belirleme email'inin süresini ayarlamak.
@@ -178,7 +181,8 @@ public class HomeController : Controller
     {
         var userId = TempData["userId"];
         var token = TempData["token"];
-        if (userId is null || token is null) throw new Exception("Bir hata oluştu.");
+        if (userId is null || token is null)
+            throw new Exception("Bir hata oluştu.");
         var hasUser = await _userManager.FindByIdAsync(userId!.ToString());
         if (hasUser == null)
         {
@@ -204,7 +208,8 @@ public class HomeController : Controller
     public async Task<IActionResult> ConfirmEmail(string email)
     {
 
-        if (!ModelState.IsValid) return View();
+        if (!ModelState.IsValid)
+            return View();
 
         var hasUser = await _userManager.FindByEmailAsync(email);
         if (hasUser == null)
@@ -250,6 +255,15 @@ public class HomeController : Controller
         var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
         return new ChallengeResult("Google", properties); //Ne verilirse kullanıcıyı oraya yönlendirir.Verdiğimiz parametrelerle ActionResult'tan kalıtım alır.
     }
+    public IActionResult MicrosoftLogin(string returnUrl = null)
+    {
+        string redirectUrl = Url.Action("ExternalResponse", "Home", new
+        {
+            ReturnUrl = returnUrl
+        }); //Kullanıcının microsoft login işleminden sonra yönlendirileceği yer.
+        var properties = _signInManager.ConfigureExternalAuthenticationProperties("Microsoft", redirectUrl);
+        return new ChallengeResult("Microsoft", properties); //Ne verilirse kullanıcıyı oraya yönlendirir.Verdiğimiz parametrelerle ActionResult'tan kalıtım alır.
+    }
 
 
     public async Task<IActionResult> ExternalResponse(string returnUrl = "/")
@@ -257,7 +271,8 @@ public class HomeController : Controller
         ExternalLoginInfo externalLoginInfo = (await _signInManager.GetExternalLoginInfoAsync())!; //Kullanıcının login olmasıyla ilgili bilgiler getirecek.
         //LoginProvider'da kullanıcı facebook'la login facebookId si gelir.
 
-        if (externalLoginInfo == null) return RedirectToAction(nameof(Login));                  //yukarıda kullanıcıyı facebook login sayfasına gönderdik fakat kullanıcı bilgileri göndermezse kontrolü yapıyoruz.
+        if (externalLoginInfo == null)
+            return RedirectToAction(nameof(Login));                  //yukarıda kullanıcıyı facebook login sayfasına gönderdik fakat kullanıcı bilgileri göndermezse kontrolü yapıyoruz.
 
 
 
@@ -290,7 +305,7 @@ public class HomeController : Controller
                 IdentityResult loginResult = await _userManager.AddLoginAsync(user, externalLoginInfo);
                 if (loginResult.Succeeded)
                 {
-                    await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider,externalLoginInfo.ProviderKey,true); // 3th party auth. olduğunu belirtmek için, ayrıca claim'e bu eklenir claim based authorization yapmamıza da imkanımız olur.
+                    await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, true); // 3th party auth. olduğunu belirtmek için, ayrıca claim'e bu eklenir claim based authorization yapmamıza da imkanımız olur.
                     //await _signInManager.SignInAsync(user, true);
                     return Redirect(returnUrl);
                 }

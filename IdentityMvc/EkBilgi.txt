@@ -14,3 +14,14 @@ Burada birinci yaklaşım kullanıcı login olurken claimler'in eklenmesini yapm
 Burada signInManager kullanmak zorunda değiliz.HttpContext üzerinden gelen SignInAsync methodunu kullanabiliriz.Burada custom claims oluşturabiliriz.
 
 3th authentication için Proje->Manage User Secrets'e(secrets.json) girip api ile ilgili Id şifre gibi bilgileri yazıyoruz.
+
+
+Microsoft Hesabı ile kimlik doğrulama Azure a taşındı.
+azure.com => app registrations => new app=> 
+Settings :
+Accounts in any organizational directory (Any Azure AD directory - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)
+
+Redirect Uri : Web => https://localhost:7030/signin-microsoft
+App oluşturulduktan sonra => Certificates & Secrets 'a new Client Secret oluşturarak ad ve ömür belirleyelim. (12 ay belirledim.)
+
+Install-Package Microsoft.AspNetCore.Authentication.MicrosoftAccount

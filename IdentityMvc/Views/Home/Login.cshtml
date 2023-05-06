@@ -48,9 +48,13 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button> 
-            <button asp-action="FacebookLogin" class="btn btn-block btn-primary float-end"> Facebook ile giriş yap</button>
-            <button asp-action="GoogleLogin" class="btn btn-block btn-primary float-end"> Google ile giriş yap</button>
+         
+            <div class="row">
+                <button type="submit" class="btn btn-outline-dark btn-block">Giriş Yap</button>
+                <button asp-action="FacebookLogin" class="btn btn-block btn-outline-primary mt-1"> Facebook ile giriş yap</button>
+                <button asp-action="GoogleLogin" class="btn btn-block btn-outline-info  mt-1"> Google ile giriş yap</button>
+                <button asp-action="MicrosoftLogin" class="btn btn-block btn-outline-success  mt-1"> Microsoft ile giriş yap</button>
+            </div>
         </form>
     </div>
 </div>
