@@ -266,7 +266,7 @@ public class HomeController : Controller
     }
 
 
-    public async Task<IActionResult> ExternalResponse(string returnUrl = "/")
+    public async Task<IActionResult> ExternalResponse(string returnUrl = "/")//3th party authentication'un döndüğü olay burada.
     {
         ExternalLoginInfo externalLoginInfo = (await _signInManager.GetExternalLoginInfoAsync())!; //Kullanıcının login olmasıyla ilgili bilgiler getirecek.
         //LoginProvider'da kullanıcı facebook'la login facebookId si gelir.
@@ -299,10 +299,12 @@ public class HomeController : Controller
             {
                 user.UserName = externalLoginInfo.Principal.FindFirst(ClaimTypes.Email)!.Value;
             }
-            IdentityResult createUserResult = await _userManager.CreateAsync(user);
-            if (createUserResult.Succeeded)
+            //! xyz@hotmail.com mail adresiyle facebook hesabı oluşturmuş olabiliriz.Bu senaryoda facebookla veya microsoftla giriş yaptığımızda kullanıcı oluşacak fakat diğer yöntemle giriş yaptığımızda hata alacağız.Bunun önüne Aşağıdaki yöntemle geçeceğiz.
+
+            AppUser existUser= await _userManager.FindByEmailAsync(user.Email);
+            if (existUser != null) //Bu maille kullanıcı varsa
             {
-                IdentityResult loginResult = await _userManager.AddLoginAsync(user, externalLoginInfo);
+                IdentityResult loginResult = await _userManager.AddLoginAsync(existUser, externalLoginInfo);
                 if (loginResult.Succeeded)
                 {
                     await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, true); // 3th party auth. olduğunu belirtmek için, ayrıca claim'e bu eklenir claim based authorization yapmamıza da imkanımız olur.
@@ -316,8 +318,27 @@ public class HomeController : Controller
             }
             else
             {
-                ModelState.AddModelErrorList(createUserResult.Errors);
+                IdentityResult createUserResult = await _userManager.CreateAsync(user);
+                if (createUserResult.Succeeded)
+                {
+                    IdentityResult loginResult = await _userManager.AddLoginAsync(user, externalLoginInfo);
+                    if (loginResult.Succeeded)
+                    {
+                        await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, true); // 3th party auth. olduğunu belirtmek için, ayrıca claim'e bu eklenir claim based authorization yapmamıza da imkanımız olur.
+                                                                                                                                             //await _signInManager.SignInAsync(user, true);
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        ModelState.AddModelErrorList(loginResult.Errors);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelErrorList(createUserResult.Errors);
+                }
             }
+
         }
         List<string> errors = ModelState.Values.SelectMany(x=>x.Errors).Select(y=>y.ErrorMessage).ToList();
 
