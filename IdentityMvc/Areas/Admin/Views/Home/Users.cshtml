@@ -22,6 +22,7 @@
     <th> Roller </th>
     <th> Rol ata </th>
     <th> Kullanıcıyı Sil </th>
+    <th> Şifreyi Değiştir </th>
     </thead>
     <tbody>
     @foreach (var user in Model)
@@ -39,6 +40,13 @@
                     <button type="submit"  class="btn btn-outline-danger">Sil</button>
                 </form>
             </td>
+                <td>
+                    
+                        <button type="submit" class="btn btn-outline-info">
+                        <a asp-action="ResetUserPassword" class="text-info" asp-route-userId="@user.Id">Değiştir</a>
+                    </button>
+              
+                </td>
         </tr>
     }
     </tbody>

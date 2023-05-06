@@ -53,4 +53,27 @@ public class HomeController : Controller
         }
         return RedirectToAction(nameof(Users));
     }
+
+
+    public async Task<IActionResult> ResetUserPassword(string userId)
+    {
+        AppUser user= await _userManager.FindByIdAsync(userId);
+        var passwordResetByAdminViewModel=new PasswordResetByAdminViewModel()
+        {
+            UserId= user.Id
+        };
+        return View(passwordResetByAdminViewModel);
+    }
+    [HttpPost]
+    public async Task<IActionResult> ResetUserPassword(PasswordResetByAdminViewModel passwordResetByAdminViewModel)
+    {
+        AppUser user= (await _userManager.FindByIdAsync(passwordResetByAdminViewModel.UserId))!;
+        //Kullanıcıya token göndermiyoruz.Kendimize token üretip işlemi tamamlıyoruz.
+        var token= await _userManager.GeneratePasswordResetTokenAsync(user);
+        var resetResult=await _userManager.ResetPasswordAsync(user,token, passwordResetByAdminViewModel.NewPassword);
+        await _userManager.UpdateSecurityStampAsync(user);//Kritik bir bilgi değiştiği için kullanıcının security stamp değerini de değiştiriyoruz.
+                                                          //Bu sayede cookie'deki ile database'deki SecurityStamp değerleri uyuşmadığı için kullanıcının ekrar giriş yapması gerekecek.
+
+        return RedirectToAction(nameof(Users));
+    }
 }

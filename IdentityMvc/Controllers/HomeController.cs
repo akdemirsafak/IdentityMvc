@@ -78,7 +78,7 @@ public class HomeController : Controller
 
     public IActionResult Login()
     {
-        if (User.Identity.IsAuthenticated)
+        if (User.Identity!.IsAuthenticated)
         {
             return RedirectToAction(nameof(Index));
         }
@@ -127,9 +127,9 @@ public class HomeController : Controller
         if (hasUser.BirthDate.HasValue)
         {
             await _signInManager.SignInWithClaimsAsync(hasUser, model.RememberMe, new[] { new Claim("BirthDate", hasUser.BirthDate.Value.ToString()) });
-            return Redirect(returnUrl!);
         }
-        return View();
+        return Redirect(returnUrl!);
+
 
     }
 
