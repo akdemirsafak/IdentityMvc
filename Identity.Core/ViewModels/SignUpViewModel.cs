@@ -15,6 +15,8 @@ public class SignUpViewModel
 
     [DisplayName("Telefon Numarası : ")]
     [Required(ErrorMessage = "Telefon numarası boş geçilemez.")]
+    //[RegularExpression(@"^(0(\\d{3}) (\\d{3}) (\\d{2}) (\\d{2}))$", ErrorMessage = "Formata uygun olmayan bir telefon numarası!")]
+    [RegularExpression(@"^(0(\d{3}) (\d{3}) (\d{2}) (\d{2}))$", ErrorMessage = "Telefon numarası formatı 0555 555 55 55 şeklinde olmalıdır.")]
     public string PhoneNumber { get; set; } = null!;
 
 

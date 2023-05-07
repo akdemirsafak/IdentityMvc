@@ -38,6 +38,11 @@ public class HomeController : Controller
     {
         if (!ModelState.IsValid)
             return View();
+        if (_userManager.Users.Any(x => x.PhoneNumber == model.PhoneNumber))
+        {
+            ModelState.AddModelError("", "Bu telefon numarası başka bir hesapta kullanılıyor.!");
+            return View(model);
+        }
 
         var identityResult = await _userManager.CreateAsync(new AppUser
         {
