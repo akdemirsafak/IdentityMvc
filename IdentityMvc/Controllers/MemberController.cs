@@ -42,7 +42,8 @@ public class MemberController : Controller
     [HttpPost]
     public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
     {
-        if (!ModelState.IsValid) return View();
+        if (!ModelState.IsValid)
+            return View();
         var checkOldPassword = await _memberService.CheckPasswordAsync(userName, model.OldPassword);
         if (!checkOldPassword)
         {
@@ -68,7 +69,9 @@ public class MemberController : Controller
     [HttpPost]
     public async Task<IActionResult> UserEdit(UserEditViewModel model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+            return View(model);
+
 
         var (isSuccess, errors) = await _memberService.EditUserAsync(userName, model);
         if (!isSuccess)

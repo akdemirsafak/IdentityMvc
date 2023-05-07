@@ -5,7 +5,6 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.FileProviders;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace Identity.Service.Services
@@ -34,7 +33,7 @@ namespace Identity.Service.Services
             await _userManager.UpdateSecurityStampAsync(currentUser); //kullanıcının hassas bilgisi değiştiği için çıkış yapılmasını sağlar.
             await _signInManager.SignOutAsync();
             await _signInManager.PasswordSignInAsync(currentUser, newPassword, true, false);
-  
+
             return (true, null); //IEnumerable null olabilir bir type olduğu için null dönmemize izin verdi.
         }
 
@@ -78,20 +77,33 @@ namespace Identity.Service.Services
 
         public SelectList GetGenderSelectList()
         {
-            return new SelectList(Enum.GetNames(typeof(Gender)));   
+            return new SelectList(Enum.GetNames(typeof(Gender)));
         }
 
         public async Task<(bool, IEnumerable<IdentityError>?)> EditUserAsync(string userName, UserEditViewModel model)
         {
-        
+
             var currentUser = (await (_userManager.FindByNameAsync(userName)))!;
+            if (currentUser.PhoneNumber != model.PhoneNumber)
+            {
+                if (_userManager.Users.Any(x => x.PhoneNumber == model.PhoneNumber))
+                {
+                    IdentityError identityError = new()
+                    {
+                        Code= "400",
+                        Description="Bu telefon numarası kullanımda."
+                    };
+                    return (false, new List<IdentityError> { identityError });
+                }
+                currentUser.PhoneNumber = model.PhoneNumber;
+            }
             //currentUser = model.Adapt<AppUser>();
             currentUser.UserName = model.UserName;
             currentUser.Email = model.Email;
             currentUser.BirthDate = model.BirthDate;
             currentUser.City = model.City;
             currentUser.Gender = model.Gender;
-            currentUser.PhoneNumber = model.PhoneNumber;
+
             if (model.Picture is not null && model.Picture.Length > 0)
             {
                 var wwwRootFolder = _fileProvider.GetDirectoryContents("wwwroot");
@@ -107,7 +119,7 @@ namespace Identity.Service.Services
             var updateToUserResult = await _userManager.UpdateAsync(currentUser);
             if (!updateToUserResult.Succeeded)
             {
-                return (false,updateToUserResult.Errors);
+                return (false, updateToUserResult.Errors);
             }
 
             // await _userManager.UpdateSecurityStampAsync(currentUser);
@@ -126,12 +138,12 @@ namespace Identity.Service.Services
             }
             //-----------
             return (true, null);
-          
+
         }
 
         public List<ClaimViewModel> GetClaims(ClaimsPrincipal claimsPrincipal)
         {
-            
+
             return claimsPrincipal.Claims.Select(x => new ClaimViewModel()
             {
                 Issuer = x.Issuer,
